@@ -1,0 +1,136 @@
+import { LIGHT, BORDER, GRAD, TEXT, MUTED } from './FormUI';
+
+function InfoRow({ label, value }) {
+  if (!value) return null;
+  return (
+    <div className="flex flex-col sm:flex-row sm:items-start gap-0.5 sm:gap-3 py-1.5 border-b last:border-0" style={{ borderColor: BORDER }}>
+      <span className="text-xs font-semibold w-40 shrink-0" style={{ color: MUTED }}>{label}</span>
+      <span className="text-sm" style={{ color: TEXT }}>{value}</span>
+    </div>
+  );
+}
+
+function Box({ title, children }) {
+  return (
+    <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${BORDER}` }}>
+      <div className="px-4 py-2.5 text-xs font-bold text-white" style={{ background: GRAD }}>{title}</div>
+      <div className="px-4 py-3 bg-white">{children}</div>
+    </div>
+  );
+}
+
+function fmtDate(d) {
+  if (!d) return '—';
+  return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+function fmt(n) { return (parseFloat(n) || 0).toFixed(2); }
+
+export default function CreditNoteReview({ creditNote, org }) {
+  const cn  = creditNote || {};
+  const ci  = cn.creditNoteInfo || {};
+  const cust = cn.customerInfo  || {};
+  const sum = cn.summary        || {};
+  const cur = ci.currency || 'INR';
+
+  return (
+    <div className="space-y-5">
+      <div className="rounded-2xl p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4" style={{ background: LIGHT, border: `1px solid ${BORDER}` }}>
+        {org?.logoUrl && <img src={org.logoUrl} alt="logo" className="w-14 h-14 rounded-xl object-contain border-2" style={{ borderColor: BORDER }} />}
+        <div className="flex-1 min-w-0">
+          <p className="font-bold text-base truncate" style={{ color: TEXT }}>{org?.organizationName || '—'}</p>
+          <p className="text-xs mt-0.5 truncate" style={{ color: MUTED }}>{org?.contact?.address || '—'}</p>
+          <p className="text-xs truncate" style={{ color: MUTED }}>
+            {[
+              (org?.gstNumber || org?.kyc?.gst?.number) && `GSTIN: ${org.gstNumber || org.kyc.gst.number}`,
+              org?.kyc?.pan?.number && `PAN: ${org.kyc.pan.number}`,
+              org?.contact?.phone   && `Ph: ${org.contact.phone}`,
+              org?.organizationEmail,
+            ].filter(Boolean).join('  |  ')}
+          </p>
+        </div>
+        <div className="shrink-0 text-right">
+          <span className="px-3 py-1.5 rounded-full text-xs font-bold tracking-widest" style={{ background: GRAD, color: '#fff' }}>
+            CREDIT NOTE
+          </span>
+          <p className="text-xs mt-1.5 font-mono" style={{ color: MUTED }}>{cn.creditNoteNumber}</p>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <Box title="CREDIT NOTE INFORMATION">
+          <InfoRow label="Credit Note Number"      value={cn.creditNoteNumber} />
+          <InfoRow label="Credit Note Date"        value={fmtDate(ci.creditNoteDate)} />
+          <InfoRow label="Reference Invoice No."   value={ci.referenceInvoiceNumber} />
+          <InfoRow label="Reference Invoice Date"  value={fmtDate(ci.referenceInvoiceDate)} />
+          <InfoRow label="Currency"                value={ci.currency} />
+          <InfoRow label="Place of Supply"         value={ci.placeOfSupply} />
+        </Box>
+
+        <Box title="CUSTOMER INFORMATION">
+          <InfoRow label="Customer Name"    value={cust.customerName} />
+          <InfoRow label="Customer Company" value={cust.customerCompany} />
+          <InfoRow label="GST Number"       value={cust.gstNumber} />
+          <InfoRow label="Email"            value={cust.email} />
+          <InfoRow label="Phone"            value={cust.phone} />
+          <InfoRow label="Billing Address"  value={cust.billingAddress} />
+          <InfoRow label="Shipping Address" value={cust.shippingAddress} />
+        </Box>
+      </div>
+
+      <Box title="ITEM TABLE">
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead>
+              <tr style={{ background: GRAD }}>
+                {['#', 'Item Name', 'Description', 'HSN Code', 'Qty', 'Unit', 'Unit Price', 'Tax %', 'Tax Amount', 'Total'].map((h) => (
+                  <th key={h} className="px-3 py-2 text-left text-xs font-bold text-white whitespace-nowrap">{h}</th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {(cn.lineItems || []).map((it, i) => (
+                <tr key={i} style={{ background: i % 2 === 0 ? '#fff' : '#F0F7FF', borderBottom: `1px solid ${BORDER}` }}>
+                  <td className="px-3 py-2 text-xs" style={{ color: MUTED }}>{i + 1}</td>
+                  <td className="px-3 py-2 font-medium" style={{ color: TEXT }}>{it.itemName}</td>
+                  <td className="px-3 py-2" style={{ color: MUTED }}>{it.description}</td>
+                  <td className="px-3 py-2 text-center" style={{ color: MUTED }}>{it.hsnCode || '—'}</td>
+                  <td className="px-3 py-2 text-right" style={{ color: TEXT }}>{it.quantity}</td>
+                  <td className="px-3 py-2 text-center" style={{ color: TEXT }}>{it.unit}</td>
+                  <td className="px-3 py-2 text-right" style={{ color: TEXT }}>{fmt(it.unitPrice)}</td>
+                  <td className="px-3 py-2 text-right" style={{ color: TEXT }}>{fmt(it.taxPercent)}%</td>
+                  <td className="px-3 py-2 text-right" style={{ color: MUTED }}>{fmt(it.taxAmount)}</td>
+                  <td className="px-3 py-2 text-right font-semibold" style={{ color: '#2563EB' }}>{fmt(it.total)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        <div className="mt-4 flex flex-col items-end gap-1.5">
+          {[
+            { label: 'Sub Total',     value: sum.subTotal,     grand: false },
+            { label: 'CGST',          value: sum.cgst,         grand: false },
+            { label: 'SGST',          value: sum.sgst,         grand: false },
+            { label: 'IGST',          value: sum.igst,         grand: false },
+            { label: 'Total',         value: sum.total,        grand: true  },
+            { label: 'Credit Amount', value: sum.creditAmount, grand: true  },
+          ].map(({ label, value, grand }) => (
+            <div key={label}
+              className={`flex justify-between w-60 px-3 py-2 rounded-lg ${grand ? 'font-bold' : ''}`}
+              style={{ background: grand ? LIGHT : '#F8FAFC', border: `1px solid ${BORDER}`, color: grand ? '#2563EB' : TEXT }}>
+              <span className="text-sm">{label}</span>
+              <span className="text-sm">{cur} {fmt(value)}</span>
+            </div>
+          ))}
+        </div>
+      </Box>
+
+      <Box title="ADDITIONAL INFORMATION">
+        <InfoRow label="Reason For Credit Note" value={cn.reasonForCreditNote} />
+        <InfoRow label="Notes"                  value={cn.notes} />
+        <InfoRow label="Terms & Conditions"     value={cn.termsAndConditions} />
+      </Box>
+    </div>
+  );
+}
