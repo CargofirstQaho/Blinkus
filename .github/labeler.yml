@@ -1,0 +1,38 @@
+backend:
+  - changed-files:
+      - any-glob-to-any-file: 'Backend/**'
+
+frontend:
+  - changed-files:
+      - any-glob-to-any-file: 'Frontend/**'
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**'
+
+payment:
+  - changed-files:
+      - any-glob-to-any-file: 'Backend/src/modules/payment/**'
+
+trade:
+  - changed-files:
+      - any-glob-to-any-file: 'Backend/src/modules/trade/**'
+
+auth:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'Backend/src/modules/auth/**'
+          - 'Frontend/src/pages/Login.jsx'
+          - 'Frontend/src/pages/Signup.jsx'
+
+ai-chat:
+  - changed-files:
+      - any-glob-to-any-file:
+          - 'Backend/src/ai/**'
+          - 'Backend/src/modules/chat/**'
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - '**/package.json'
+          - '**/package-lock.json'
