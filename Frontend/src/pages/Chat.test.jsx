@@ -81,7 +81,7 @@ describe('Chat Page', () => {
 
     it('renders disclaimer text', () => {
       renderChat();
-      expect(screen.getByText(/Blinkus Intelligence may produce inaccurate trade data/i)).toBeInTheDocument();
+      expect(screen.getByText(/Blinkus is AI and can make mistakes/i)).toBeInTheDocument();
     });
   });
 
