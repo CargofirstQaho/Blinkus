@@ -23,6 +23,7 @@ export default defineConfig(() => {
   return {
     plugins: [react(), tailwindcss(), versionPlugin()],
     resolve: {
+      dedupe: ['react', 'react-dom', 'react-router-dom'],
       alias: {
         '@': path.resolve(__dirname, '.'),
       },

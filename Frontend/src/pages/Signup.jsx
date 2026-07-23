@@ -323,7 +323,7 @@ export default function Signup() {
             <div className="flex-1 h-px bg-black/10" />
           </div>
 
-          <GoogleAuthButton disabled={loading || !agreedToTerms} />
+          <GoogleAuthButton disabled={loading} />
         </motion.div>
       </div>
     </div>
