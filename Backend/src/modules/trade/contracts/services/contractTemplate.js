@@ -80,10 +80,14 @@ function drawLetterhead(doc, { organization, logoBuf }) {
 
   const y = doc.y;
 
-  if (logoBuf && logoW > 0) {
-    const logoX = leftX;
-    const logoY = y + (blockH - logoH) / 2;
-    try { doc.image(logoBuf, logoX, logoY, { fit: [logoW, logoH] }); } catch (_) {}
+  if (logoBuf) {
+    try {
+      doc.image(logoBuf, leftX, y, {
+        fit: [leftW, blockH],
+        align: 'left',
+        valign: 'center',
+      });
+    } catch (_) {}
   }
 
   doc.fontSize(13).font(SANS_B).fillColor(INK)
