@@ -25,26 +25,37 @@ function ensureSectionSpace(doc, height) {
   if (doc.y + height > CONTENT_BOTTOM) doc.addPage();
 }
 
+function decodeHtml(str) {
+  if (!str) return '';
+  return String(str)
+    .replace(/&#x2F;/g, '/')
+    .replace(/&#x2f;/g, '/')
+    .replace(/&amp;/g, '&')
+    .replace(/&#39;/g, "'")
+    .replace(/&quot;/g, '"')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+}
+
 function drawLetterhead(doc, { organization, logoBuf }) {
-  const orgName  = organization?.organizationName || 'Organization';
-  const orgLines = [
-    organization?.contact?.address,
-    organization?.kyc?.gst?.number ? `GSTIN: ${organization.kyc.gst.number}` : null,
-    organization?.contact?.phone   ? `Tel: ${organization.contact.phone}`   : null,
-    organization?.organizationEmail,
-  ].filter(Boolean).join('   |   ');
+  const orgName  = decodeHtml(organization?.organizationName || 'Organization');
+  const rawAddr  = decodeHtml(organization?.contact?.address || '');
+  const gstNum   = decodeHtml(organization?.kyc?.gst?.number ? `GSTIN: ${organization.kyc.gst.number}` : '');
+  const phoneNum = decodeHtml(organization?.contact?.phone ? `Tel: ${organization.contact.phone}` : '');
+  const emailAddr= decodeHtml(organization?.organizationEmail || '');
+
+  const orgLines = [rawAddr, gstNum, phoneNum, emailAddr].filter(Boolean).join('   |   ');
 
   const HALF_W  = CONTENT / 2;
   const COL_GAP = 20;
-  const LOGO_PAD = 10;
 
   const leftX  = MARGIN;
   const leftW  = HALF_W - COL_GAP / 2;
   const textX  = MARGIN + HALF_W + COL_GAP / 2;
   const textW  = HALF_W - COL_GAP / 2;
 
-  const LOGO_MAX_W = leftW - LOGO_PAD * 2;
-  const LOGO_MAX_H = 100;
+  const LOGO_MAX_W = leftW;
+  const LOGO_MAX_H = 60;
 
   let logoW = 0, logoH = 0;
   if (logoBuf) {
@@ -65,12 +76,12 @@ function drawLetterhead(doc, { organization, logoBuf }) {
   const linesH = orgLines ? doc.heightOfString(orgLines, { width: textW, lineGap: 1 }) : 0;
 
   const textBlockH = nameH + (linesH ? linesH + 4 : 0);
-  const blockH     = Math.max(textBlockH, logoH);
+  const blockH     = Math.max(textBlockH, logoH, 40);
 
   const y = doc.y;
 
-  if (logoBuf && logoW) {
-    const logoX = leftX + (leftW - logoW) / 2;
+  if (logoBuf && logoW > 0) {
+    const logoX = leftX;
     const logoY = y + (blockH - logoH) / 2;
     try { doc.image(logoBuf, logoX, logoY, { fit: [logoW, logoH] }); } catch (_) {}
   }
@@ -409,23 +420,23 @@ export async function buildContractPdf(contract, organization, logoUrl) {
     const seller = contract.seller || {};
 
     const buyerFields = [
-      { l: 'Company',        v: buyer.companyName   },
-      { l: 'Address',        v: buyer.address       },
-      { l: 'Country',        v: buyer.country       },
-      { l: 'Contact Person', v: buyer.contactPerson },
-      { l: 'Phone',          v: buyer.phone         },
-      { l: 'Email',          v: buyer.email         },
-      { l: 'Tax / VAT No.',  v: buyer.taxNumber     },
+      { l: 'Company',        v: decodeHtml(buyer.companyName)   },
+      { l: 'Address',        v: decodeHtml(buyer.address)       },
+      { l: 'Country',        v: decodeHtml(buyer.country)       },
+      { l: 'Contact Person', v: decodeHtml(buyer.contactPerson) },
+      { l: 'Phone',          v: decodeHtml(buyer.phone)         },
+      { l: 'Email',          v: decodeHtml(buyer.email)         },
+      { l: 'Tax / VAT No.',  v: decodeHtml(buyer.taxNumber)     },
     ];
 
     const sellerFields = [
-      { l: 'Company',        v: seller.companyName   },
-      { l: 'Address',        v: seller.address       },
-      { l: 'Country',        v: seller.country       },
-      { l: 'Contact Person', v: seller.contactPerson },
-      { l: 'Phone',          v: seller.phone         },
-      { l: 'Email',          v: seller.email         },
-      { l: 'Tax / VAT No.',  v: seller.taxNumber     },
+      { l: 'Company',        v: decodeHtml(seller.companyName)   },
+      { l: 'Address',        v: decodeHtml(seller.address)       },
+      { l: 'Country',        v: decodeHtml(seller.country)       },
+      { l: 'Contact Person', v: decodeHtml(seller.contactPerson) },
+      { l: 'Phone',          v: decodeHtml(seller.phone)         },
+      { l: 'Email',          v: decodeHtml(seller.email)         },
+      { l: 'Tax / VAT No.',  v: decodeHtml(seller.taxNumber)     },
     ];
 
     const partyEntries = [
