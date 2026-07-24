@@ -12,8 +12,6 @@ const INK_FAINT = '#8c8c8c';
 const LINE      = '#1a1a1a';
 const LINE_SOFT = '#d0d0d0';
 
-const SERIF   = 'Times-Roman';
-const SERIF_B = 'Times-Bold';
 const SANS    = 'Helvetica';
 const SANS_B  = 'Helvetica-Bold';
 
@@ -91,7 +89,7 @@ function drawTitleBlock(doc, { title, contractNumber, date }) {
   const t = (title || 'TRADE CONTRACT').toUpperCase();
   const titleOpts = { width: CONTENT, align: 'center', characterSpacing: 1.4 };
 
-  doc.fontSize(18).font(SERIF_B);
+  doc.fontSize(18).font(SANS_B);
   const titleH = doc.heightOfString(t, titleOpts);
 
   const y = doc.y;
@@ -160,7 +158,7 @@ function fieldGrid(doc, rows) {
       const x = MARGIN + ci * (w + COL_GUTTER);
       doc.fontSize(6.5).font(SANS).fillColor(INK_FAINT)
         .text(String(c.l).toUpperCase(), x, y, { width: w, lineBreak: false, characterSpacing: 0.3 });
-      doc.fontSize(8.5).font(SERIF).fillColor(INK)
+      doc.fontSize(8.5).font(SANS).fillColor(INK)
         .text(String(c.v ?? '—'), x, y + 11, { width: w, lineGap: 1 });
     });
 
@@ -181,7 +179,7 @@ function measureCommodityDetailsBlock(doc, comRow, noteText) {
   if (text) {
     if (comRow.length) h += 12;
     const innerW = CONTENT - 14;
-    doc.fontSize(8.5).font(SERIF);
+    doc.fontSize(8.5).font(SANS);
     const textH = doc.heightOfString(text, { width: innerW, align: 'justify', lineGap: 2 });
     h += 12 + textH + 4;
   }
@@ -200,7 +198,7 @@ function commodityDetailsBlock(doc, comRow, noteLabel, noteText) {
       const x = MARGIN + ci * (w + COL_GUTTER);
       doc.fontSize(6.5).font(SANS).fillColor(INK_FAINT)
         .text(String(c.l).toUpperCase(), x, y, { width: w, lineBreak: false, characterSpacing: 0.3 });
-      doc.fontSize(8.5).font(SERIF).fillColor(INK)
+      doc.fontSize(8.5).font(SANS).fillColor(INK)
         .text(String(c.v ?? '—'), x, y + 11, { width: w, lineGap: 1 });
     });
 
@@ -210,7 +208,7 @@ function commodityDetailsBlock(doc, comRow, noteLabel, noteText) {
   const text = (noteText || '').toString().trim();
   if (text) {
     const innerW = CONTENT - 14;
-    doc.fontSize(8.5).font(SERIF);
+    doc.fontSize(8.5).font(SANS);
     const textH = doc.heightOfString(text, { width: innerW, align: 'justify', lineGap: 2 });
 
     doc.fontSize(7).font(SANS_B).fillColor(INK_SOFT)
@@ -220,7 +218,7 @@ function commodityDetailsBlock(doc, comRow, noteLabel, noteText) {
     doc.save().strokeColor(LINE_SOFT).lineWidth(1.5)
       .moveTo(MARGIN, textY).lineTo(MARGIN, textY + textH + 4).stroke().restore();
 
-    doc.fontSize(8.5).font(SERIF).fillColor(INK)
+    doc.fontSize(8.5).font(SANS).fillColor(INK)
       .text(text, MARGIN + 14, textY, { width: innerW, align: 'justify', lineGap: 2 });
 
     y = textY + textH + 4;
@@ -237,7 +235,7 @@ function measurePartyBoxes(doc, boxes) {
     const fields = (box.fields || []).filter((f) => f.v);
     let h = 15;
     fields.forEach((f) => {
-      doc.fontSize(8.5).font(SERIF);
+      doc.fontSize(8.5).font(SANS);
       const vH = doc.heightOfString(String(f.v), { width: colW, lineGap: 1 });
       h += Math.max(vH + 11, 18) + 5;
     });
@@ -263,7 +261,7 @@ function partyBoxes(doc, boxes) {
     fields.forEach((f) => {
       doc.fontSize(6.5).font(SANS).fillColor(INK_FAINT)
         .text(String(f.l).toUpperCase(), x, fy, { width: colW, lineBreak: false, characterSpacing: 0.3 });
-      doc.fontSize(8.5).font(SERIF).fillColor(INK);
+      doc.fontSize(8.5).font(SANS).fillColor(INK);
       const vH = doc.heightOfString(String(f.v), { width: colW, lineGap: 1 });
       doc.text(String(f.v), x, fy + 10, { width: colW, lineGap: 1 });
       fy += Math.max(vH + 11, 18) + 5;
@@ -282,7 +280,7 @@ function noteBlock(doc, label, content) {
   const padL = 14;
   const innerW = CONTENT - padL;
 
-  doc.fontSize(8.5).font(SERIF);
+  doc.fontSize(8.5).font(SANS);
   const textH = doc.heightOfString(text, { width: innerW, align: 'justify', lineGap: 2 });
   const labelH = 12;
   const blockH = labelH + textH + 10;
@@ -297,7 +295,7 @@ function noteBlock(doc, label, content) {
   doc.save().strokeColor(LINE_SOFT).lineWidth(1.5)
     .moveTo(MARGIN, textY).lineTo(MARGIN, textY + textH + 4).stroke().restore();
 
-  doc.fontSize(8.5).font(SERIF).fillColor(INK)
+  doc.fontSize(8.5).font(SANS).fillColor(INK)
     .text(text, MARGIN + padL, textY, { width: innerW, align: 'justify', lineGap: 2 });
 
   doc.y = textY + textH + 14;
@@ -308,7 +306,7 @@ function clauseBlockHeight(doc, content) {
   if (!text) return 0;
 
   const innerW = CONTENT - 30;
-  doc.fontSize(8.5).font(SERIF);
+  doc.fontSize(8.5).font(SANS);
   const textH = doc.heightOfString(text, { width: innerW, align: 'justify', lineGap: 2 });
   return 13 + textH + 10;
 }
@@ -325,12 +323,12 @@ function clauseItem(doc, sectionNumber, index, title, content) {
   ensureSpace(doc, blockH);
   const y = doc.y;
 
-  doc.fontSize(8.5).font(SERIF_B).fillColor(INK)
+  doc.fontSize(8.5).font(SANS_B).fillColor(INK)
     .text(number, MARGIN, y, { width: indent - 6, lineBreak: false });
-  doc.fontSize(8.5).font(SERIF_B).fillColor(INK)
+  doc.fontSize(8.5).font(SANS_B).fillColor(INK)
     .text(title, MARGIN + indent, y, { width: innerW });
 
-  doc.fontSize(8.5).font(SERIF).fillColor(INK)
+  doc.fontSize(8.5).font(SANS).fillColor(INK)
     .text(text, MARGIN + indent, y + 13, { width: innerW, align: 'justify', lineGap: 2 });
 
   doc.y = y + blockH;
